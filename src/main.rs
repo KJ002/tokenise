@@ -1,3 +1,97 @@
+#[derive(PartialEq, Eq, Clone)]
+enum TokenType {
+    Operand,
+    Operator,
+    Other,
+    Null,
+}
+
+struct Token {
+    content: String,
+    token_type: TokenType,
+}
+
+trait Lexer {
+    fn tokenise(&self) -> Result<Vec<Token>, String>;
+
+    fn operators(&self) -> Vec<char> {
+        vec!['+', '-', '*', '/', '(', ')']
+    }
+}
+
+impl Lexer for String {
+    fn tokenise(&self) -> Result<Vec<Token>, String> {
+        let mut result: Vec<Token> = vec![];
+
+        let mut buffer: Vec<char> = vec![];
+        let mut current_buffer_type: TokenType = TokenType::Null;
+
+        for character in self.chars() {
+            let is_operand = character.is_digit(10);
+            let is_operator = self.operators().iter().any(|x| *x == character);
+
+            if is_operand && is_operator {
+                return Err(format!(
+                    "The character {} seems to have an abiguous type.",
+                    character
+                ));
+            }
+
+            let token_type = if is_operand {
+                TokenType::Operand
+            } else if is_operator {
+                TokenType::Operator
+            } else {
+                TokenType::Other
+            };
+
+            let token = Token {
+                content: character.to_string(),
+                token_type: token_type.clone()
+            };
+
+            if token_type == TokenType::Operator {
+                let buffer_token = Token {
+                    content: buffer.iter().collect::<String>(),
+                    token_type: current_buffer_type
+                };
+
+                result.push(buffer_token);
+                result.push(token);
+
+                buffer.clear();
+                current_buffer_type = TokenType::Null;
+            } else if buffer.len() == 0 && current_buffer_type == TokenType::Null{
+                buffer.push(character);
+                current_buffer_type = token_type;
+            } else if token_type == current_buffer_type {
+                buffer.push(character);
+            } else if token_type != current_buffer_type {
+                let buffer_token = Token {
+                    content: buffer.iter().collect::<String>(),
+                    token_type: current_buffer_type
+                };
+
+                result.push(buffer_token);
+                buffer.clear();
+
+                buffer.push(character);
+
+                current_buffer_type = token_type;
+            }
+        }
+
+        result.push( Token {
+            content: buffer.iter().collect::<String>(),
+            token_type: current_buffer_type
+        });
+
+        Ok(result)
+    }
+}
+
 fn main() {
-    println!("Hello, world!");
+    for token in "-11+1*8xy".to_string().tokenise().unwrap() {
+        println!("{}", token.content);
+    }
 }
