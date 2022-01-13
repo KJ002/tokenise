@@ -6,6 +6,7 @@ enum TokenType {
     Null,
 }
 
+#[allow(dead_code)]
 struct Token {
     content: String,
     token_type: TokenType,
