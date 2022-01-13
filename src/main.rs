@@ -61,7 +61,7 @@ impl Lexer for String {
 
                 buffer.clear();
                 current_buffer_type = TokenType::Null;
-            } else if buffer.len() == 0 && current_buffer_type == TokenType::Null{
+            } else if buffer.is_empty() && current_buffer_type == TokenType::Null{
                 buffer.push(character);
                 current_buffer_type = token_type;
             } else if token_type == current_buffer_type {
