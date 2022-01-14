@@ -1,4 +1,4 @@
-#[derive(PartialEq, Eq, Clone)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 enum TokenType {
     Operand,
     Operator,
@@ -7,6 +7,7 @@ enum TokenType {
 }
 
 #[allow(dead_code)]
+#[derive(Clone)]
 struct Token {
     content: String,
     token_type: TokenType,
@@ -86,17 +87,29 @@ fn initial_seperation(data: String) -> Result<Vec<Token>, String>{
         token_type: current_buffer_type
     });
 
+    result = result.iter().filter(|x| x.token_type != TokenType::Null).cloned().collect();
+    Ok(result)
+}
+
+fn negative_numbers_fix(data: Result<Vec<Token>, String>) -> Result<Vec<Token>, String> {
+    let mut result = data.unwrap();
+
+    if result[0].content == "-" && result[1].token_type == TokenType::Operand {
+        result[1].content = format!("-{}", result[1].content);
+        result.remove(0);
+    }
+
     Ok(result)
 }
 
 impl Lexer for String {
     fn tokenise(&self) -> Result<Vec<Token>, String> {
-        initial_seperation(self.to_string())
+        negative_numbers_fix(initial_seperation(self.to_string()))
     }
 }
 
 fn main() {
     for token in "-11+1*8xy".to_string().tokenise().unwrap() {
-        println!("{}", token.content);
+        println!("{}, {:?}", token.content, token.token_type);
     }
 }
