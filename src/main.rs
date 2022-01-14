@@ -21,7 +21,7 @@ trait Lexer {
 }
 
 fn initial_seperation(data: String) -> Result<Vec<Token>, String>{
-let mut result: Vec<Token> = vec![];
+    let mut result: Vec<Token> = vec![];
 
     let mut buffer: Vec<char> = vec![];
     let mut current_buffer_type: TokenType = TokenType::Null;
