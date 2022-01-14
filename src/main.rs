@@ -21,7 +21,7 @@ trait Lexer {
     }
 }
 
-fn initial_seperation(data: String) -> Result<Vec<Token>, String>{
+fn initial_seperation(data: String) -> Result<Vec<Token>, String> {
     let mut result: Vec<Token> = vec![];
 
     let mut buffer: Vec<char> = vec![];
@@ -48,13 +48,13 @@ fn initial_seperation(data: String) -> Result<Vec<Token>, String>{
 
         let token = Token {
             content: character.to_string(),
-            token_type: token_type.clone()
+            token_type: token_type.clone(),
         };
 
         if token_type == TokenType::Operator {
             let buffer_token = Token {
                 content: buffer.iter().collect::<String>(),
-                token_type: current_buffer_type
+                token_type: current_buffer_type,
             };
 
             result.push(buffer_token);
@@ -62,7 +62,7 @@ fn initial_seperation(data: String) -> Result<Vec<Token>, String>{
 
             buffer.clear();
             current_buffer_type = TokenType::Null;
-        } else if buffer.is_empty() && current_buffer_type == TokenType::Null{
+        } else if buffer.is_empty() && current_buffer_type == TokenType::Null {
             buffer.push(character);
             current_buffer_type = token_type;
         } else if token_type == current_buffer_type {
@@ -70,7 +70,7 @@ fn initial_seperation(data: String) -> Result<Vec<Token>, String>{
         } else if token_type != current_buffer_type {
             let buffer_token = Token {
                 content: buffer.iter().collect::<String>(),
-                token_type: current_buffer_type
+                token_type: current_buffer_type,
             };
 
             result.push(buffer_token);
@@ -82,12 +82,16 @@ fn initial_seperation(data: String) -> Result<Vec<Token>, String>{
         }
     }
 
-    result.push( Token {
+    result.push(Token {
         content: buffer.iter().collect::<String>(),
-        token_type: current_buffer_type
+        token_type: current_buffer_type,
     });
 
-    result = result.iter().filter(|x| x.token_type != TokenType::Null).cloned().collect();
+    result = result
+        .iter()
+        .filter(|x| x.token_type != TokenType::Null)
+        .cloned()
+        .collect();
     Ok(result)
 }
 
@@ -99,16 +103,24 @@ fn negative_numbers_fix(data: Result<Vec<Token>, String>) -> Result<Vec<Token>, 
         result.remove(0);
     }
 
-    let mut successful_iteration = false;
-    while !successful_iteration{
-        for i in 0..result.len()-3{
-            if result[i].token_type == TokenType::Operator && result[i+1].content == "-" && result[i+2].token_type == TokenType::Operand {
-                result[i+2].content = format!("-{}", result[i+2].content);
-                result.remove(i+1);
-                break;
-            }
+    // TODO: Shit code fix at later date... or never
 
-            else if i == result.len()-4{
+    let mut successful_iteration = false;
+    while !successful_iteration {
+        for i in 0..result.len() - 3 {
+            if result[i].token_type == TokenType::Operator
+                && result[i + 1].content == "-"
+                && result[i + 2].token_type == TokenType::Operand
+            {
+                result[i + 2].content = if result[i + 2].content.chars().nth(0).unwrap() == '-' {
+                    result[i + 2].content[1..].to_string()
+                } else {
+                    format!("-{}", result[i + 2].content)
+                };
+
+                result.remove(i + 1);
+                break;
+            } else if i == result.len() - 4 {
                 successful_iteration = true;
             }
         }
@@ -124,7 +136,7 @@ impl Lexer for String {
 }
 
 fn main() {
-    for token in "-11+-1*8xy".to_string().tokenise().unwrap() {
+    for token in "-11+--1*8".to_string().tokenise().unwrap() {
         println!("{}, {:?}", token.content, token.token_type);
     }
 }
