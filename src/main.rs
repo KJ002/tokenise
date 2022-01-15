@@ -102,11 +102,6 @@ fn negative_numbers_fix(data: Result<Vec<Token>, String>) -> Result<Vec<Token>, 
         return Err("The expression has a length of 0.".to_string());
     }
 
-    if result[0].content == "-" && result[1].token_type == TokenType::Operand {
-        result[1].content = format!("-{}", result[1].content);
-        result.remove(0);
-    }
-
     // TODO: Shit code fix at later date... or never
 
     let mut successful_iteration = false;
@@ -128,6 +123,15 @@ fn negative_numbers_fix(data: Result<Vec<Token>, String>) -> Result<Vec<Token>, 
                 successful_iteration = true;
             }
         }
+
+        if result.len() < 3 {
+            successful_iteration = true;
+        }
+    }
+
+    if result[0].content == "-" && result[1].token_type == TokenType::Operand {
+        result[1].content = format!("-{}", result[1].content);
+        result.remove(0);
     }
 
     Ok(result)
@@ -169,7 +173,7 @@ impl Lexer for String {
 }
 
 fn main() {
-    for token in "1*-1".to_string().tokenise().unwrap() {
+    for token in "--1".to_string().tokenise().unwrap() {
         println!("{}, {:?}", token.content, token.token_type);
     }
 }
