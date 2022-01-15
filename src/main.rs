@@ -111,7 +111,7 @@ fn negative_numbers_fix(data: Result<Vec<Token>, String>) -> Result<Vec<Token>, 
 
     let mut successful_iteration = false;
     while !successful_iteration {
-        for i in 0..result.len() - 3 {
+        for i in 0..result.len() - 2 {
             if result[i].token_type == TokenType::Operator
                 && result[i + 1].content == "-"
                 && result[i + 2].token_type == TokenType::Operand
@@ -124,8 +124,7 @@ fn negative_numbers_fix(data: Result<Vec<Token>, String>) -> Result<Vec<Token>, 
 
                 result.remove(i + 1);
                 break;
-            }
-            if i == result.len() - 4 {
+            } if i == result.len() - 3 {
                 successful_iteration = true;
             }
         }
@@ -170,7 +169,7 @@ impl Lexer for String {
 }
 
 fn main() {
-    for token in "1*1".to_string().tokenise().unwrap() {
+    for token in "1*-1".to_string().tokenise().unwrap() {
         println!("{}, {:?}", token.content, token.token_type);
     }
 }
