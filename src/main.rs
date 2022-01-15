@@ -138,6 +138,10 @@ fn negative_numbers_fix(data: Result<Vec<Token>, String>) -> Result<Vec<Token>, 
 }
 
 fn consecutive_types(data: Vec<Token>) -> Result<(), String> {
+    if data.len() < 2{
+        return Ok(());
+    }
+
     for i in 0..data.len() - 2 {
         if data[i].token_type == data[i + 1].token_type {
             return Err(format!(
@@ -173,7 +177,7 @@ impl Lexer for String {
 }
 
 fn main() {
-    for token in "--1".to_string().tokenise().unwrap() {
+    for token in "--1+".to_string().tokenise().unwrap() {
         println!("{}, {:?}", token.content, token.token_type);
     }
 }
