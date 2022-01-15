@@ -119,7 +119,8 @@ fn negative_numbers_fix(data: Result<Vec<Token>, String>) -> Result<Vec<Token>, 
 
                 result.remove(i + 1);
                 break;
-            } if i == result.len() - 3 {
+            }
+            if i == result.len() - 3 {
                 successful_iteration = true;
             }
         }
@@ -138,7 +139,7 @@ fn negative_numbers_fix(data: Result<Vec<Token>, String>) -> Result<Vec<Token>, 
 }
 
 fn consecutive_types(data: Vec<Token>) -> Result<(), String> {
-    if data.len() < 2{
+    if data.len() < 2 {
         return Ok(());
     }
 
