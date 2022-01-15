@@ -98,6 +98,10 @@ fn initial_seperation(data: String) -> Result<Vec<Token>, String> {
 fn negative_numbers_fix(data: Result<Vec<Token>, String>) -> Result<Vec<Token>, String> {
     let mut result = data.unwrap();
 
+    if result.len() == 0 {
+        return Err("The expression has a length of 0.".to_string());
+    }
+
     if result[0].content == "-" && result[1].token_type == TokenType::Operand {
         result[1].content = format!("-{}", result[1].content);
         result.remove(0);
@@ -120,7 +124,8 @@ fn negative_numbers_fix(data: Result<Vec<Token>, String>) -> Result<Vec<Token>, 
 
                 result.remove(i + 1);
                 break;
-            } else if i == result.len() - 4 {
+            }
+            if i == result.len() - 4 {
                 successful_iteration = true;
             }
         }
@@ -129,14 +134,43 @@ fn negative_numbers_fix(data: Result<Vec<Token>, String>) -> Result<Vec<Token>, 
     Ok(result)
 }
 
+fn consecutive_types(data: Vec<Token>) -> Result<(), String> {
+    for i in 0..data.len() - 2 {
+        if data[i].token_type == data[i + 1].token_type {
+            return Err(format!(
+                "Consecutive types at {}{}",
+                data[i].content,
+                data[i + 1].content
+            ));
+        }
+    }
+
+    Ok(())
+}
+
+fn check(data: Result<Vec<Token>, String>) -> Result<Vec<Token>, String> {
+    let checks: Vec<fn(Vec<Token>) -> Result<(), String>> = vec![consecutive_types];
+    let results: Vec<bool> = checks
+        .iter()
+        .map(|x| x(data.clone().unwrap()).unwrap() == ())
+        .collect();
+    let total: usize = results.iter().cloned().fold(0, |acc, x| acc + x as usize);
+
+    if total < results.len() {
+        return Err("The code seems to have failed a vital check.".to_string());
+    }
+
+    data
+}
+
 impl Lexer for String {
     fn tokenise(&self) -> Result<Vec<Token>, String> {
-        negative_numbers_fix(initial_seperation(self.to_string()))
+        check(negative_numbers_fix(initial_seperation(self.to_string())))
     }
 }
 
 fn main() {
-    for token in "-11+--1*8".to_string().tokenise().unwrap() {
+    for token in "1*1".to_string().tokenise().unwrap() {
         println!("{}, {:?}", token.content, token.token_type);
     }
 }
