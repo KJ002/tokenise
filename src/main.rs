@@ -6,8 +6,7 @@ enum TokenType {
     Null,
 }
 
-#[allow(dead_code)]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 struct Token {
     content: String,
     token_type: TokenType,
@@ -19,6 +18,10 @@ trait Lexer {
     fn operators(&self) -> Vec<char> {
         vec!['+', '-', '*', '/', '(', ')']
     }
+
+    fn ignores(&self) -> Vec<char> {
+        vec!['.']
+    }
 }
 
 fn initial_seperation(data: String) -> Result<Vec<Token>, String> {
@@ -28,7 +31,7 @@ fn initial_seperation(data: String) -> Result<Vec<Token>, String> {
     let mut current_buffer_type: TokenType = TokenType::Null;
 
     for character in data.chars() {
-        let is_operand = character.is_digit(10);
+        let is_operand = character.is_digit(10) || character == '.';
         let is_operator = data.operators().iter().any(|x| *x == character);
 
         if is_operand && is_operator {
@@ -102,7 +105,9 @@ fn negative_numbers_fix(data: Result<Vec<Token>, String>) -> Result<Vec<Token>, 
         return Err("The expression has a length of 0.".to_string());
     }
 
-    // TODO: Shit code fix at later date... or never
+    if result.len() < 3 {
+        return Ok(result);
+    }
 
     let mut successful_iteration = false;
     while !successful_iteration {
@@ -178,7 +183,7 @@ impl Lexer for String {
 }
 
 fn main() {
-    for token in "--1+".to_string().tokenise().unwrap() {
+    for token in "1.2%".to_string().tokenise().unwrap() {
         println!("{}, {:?}", token.content, token.token_type);
     }
 }
