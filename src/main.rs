@@ -31,7 +31,7 @@ fn initial_seperation(data: String) -> Result<Vec<Token>, String> {
     let mut current_buffer_type: TokenType = TokenType::Null;
 
     for character in data.chars() {
-        let is_operand = character.is_digit(10) || character == '.';
+        let is_operand = character.is_digit(10) || (character == '.' && !buffer.iter().any(|x| *x != '.'));
         let is_operator = data.operators().iter().any(|x| *x == character);
 
         if is_operand && is_operator {
