@@ -31,7 +31,8 @@ fn initial_seperation(data: String) -> Result<Vec<Token>, String> {
     let mut current_buffer_type: TokenType = TokenType::Null;
 
     for character in data.chars() {
-        let is_operand = character.is_digit(10) || (character == '.' && !buffer.iter().any(|x| *x == '.'));
+        let is_operand =
+            character.is_digit(10) || (character == '.' && !buffer.iter().any(|x| *x == '.'));
         let is_operator = data.operators().iter().any(|x| *x == character);
 
         if is_operand && is_operator {
@@ -101,46 +102,56 @@ fn initial_seperation(data: String) -> Result<Vec<Token>, String> {
 fn negative_numbers_fix(data: Result<Vec<Token>, String>) -> Result<Vec<Token>, String> {
     let mut result = data.unwrap();
 
-    if result.len() == 0 {
-        return Err("The expression has a length of 0.".to_string());
-    }
-
-    if result.len() < 3 {
-        return Ok(result);
-    }
-
-    let mut successful_iteration = false;
-    while !successful_iteration {
-        for i in 0..result.len() - 2 {
-            if result[i].token_type == TokenType::Operator
-                && result[i + 1].content == "-"
-                && result[i + 2].token_type == TokenType::Operand
-            {
-                result[i + 2].content = if result[i + 2].content.chars().nth(0).unwrap() == '-' {
-                    result[i + 2].content[1..].to_string()
-                } else {
-                    format!("-{}", result[i + 2].content)
+    Ok(match result.len() {
+        0 => result,
+        2 => {
+            if result[0].content == "-" && result[1].token_type == TokenType::Operand {
+                let new_token = Token {
+                    content: format!("-{}", result[1].content),
+                    token_type: TokenType::Operand,
                 };
 
-                result.remove(i + 1);
-                break;
+                result = vec![new_token];
             }
-            if i == result.len() - 3 {
-                successful_iteration = true;
+
+            result
+        }
+        _ => {
+            let mut successful_iteration = false;
+            while !successful_iteration {
+                for i in 0..result.len() - 2 {
+                    if result[i].token_type == TokenType::Operator
+                        && result[i + 1].content == "-"
+                        && result[i + 2].token_type == TokenType::Operand
+                    {
+                        result[i + 2].content =
+                            if result[i + 2].content.chars().nth(0).unwrap() == '-' {
+                                result[i + 2].content[1..].to_string()
+                            } else {
+                                format!("-{}", result[i + 2].content)
+                            };
+
+                        result.remove(i + 1);
+                        break;
+                    }
+                    if i == result.len() - 3 {
+                        successful_iteration = true;
+                    }
+                }
+
+                if result.len() < 3 {
+                    successful_iteration = true;
+                }
             }
+
+            if result[0].content == "-" && result[1].token_type == TokenType::Operand {
+                result[1].content = format!("-{}", result[1].content);
+                result.remove(0);
+            }
+
+            result
         }
-
-        if result.len() < 3 {
-            successful_iteration = true;
-        }
-    }
-
-    if result[0].content == "-" && result[1].token_type == TokenType::Operand {
-        result[1].content = format!("-{}", result[1].content);
-        result.remove(0);
-    }
-
-    Ok(result)
+    })
 }
 
 fn consecutive_types(data: Vec<Token>) -> Result<(), String> {
@@ -167,6 +178,8 @@ fn check(data: Result<Vec<Token>, String>) -> Result<Vec<Token>, String> {
         .iter()
         .map(|x| x(data.clone().unwrap()).unwrap() == ())
         .collect();
+
+    // Sum the result vector
     let total: usize = results.iter().cloned().fold(0, |acc, x| acc + x as usize);
 
     if total < results.len() {
@@ -183,7 +196,7 @@ impl Lexer for String {
 }
 
 fn main() {
-    for token in "1.2.".to_string().tokenise().unwrap() {
+    for token in "-1".to_string().tokenise().unwrap() {
         println!("{}, {:?}", token.content, token.token_type);
     }
 }
