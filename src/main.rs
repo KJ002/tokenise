@@ -195,8 +195,14 @@ impl Lexer for String {
     }
 }
 
+impl Lexer for str {
+    fn tokenise(&self) -> Result<Vec<Token>, String> {
+        self.to_string().tokenise()
+    }
+}
+
 fn main() {
-    for token in "-1".to_string().tokenise().unwrap() {
+    for token in "-1".tokenise().unwrap() {
         println!("{}, {:?}", token.content, token.token_type);
     }
 }
