@@ -13,7 +13,7 @@ struct Token {
 }
 
 trait Lexer {
-    fn tokenise(&self) -> Result<Vec<Token>, String>;
+    fn tokenise(&self) -> Vec<Token>;
 
     fn operators(&self) -> Vec<char> {
         vec!['+', '-', '*', '/', '(', ')']
@@ -24,7 +24,7 @@ trait Lexer {
     }
 }
 
-fn initial_seperation(data: String) -> Result<Vec<Token>, String> {
+fn initial_seperation(data: String) -> Vec<Token> {
     let mut result: Vec<Token> = vec![];
 
     let mut buffer: Vec<char> = vec![];
@@ -34,13 +34,6 @@ fn initial_seperation(data: String) -> Result<Vec<Token>, String> {
         let is_operand =
             character.is_digit(10) || (character == '.' && !buffer.iter().any(|x| *x == '.'));
         let is_operator = data.operators().iter().any(|x| *x == character);
-
-        if is_operand && is_operator {
-            return Err(format!(
-                "The character {} seems to have an abiguous type.",
-                character
-            ));
-        }
 
         let token_type = if is_operand {
             TokenType::Operand
@@ -97,14 +90,14 @@ fn initial_seperation(data: String) -> Result<Vec<Token>, String> {
         .cloned()
         .collect();
 
-    clean_negatives(result);
+    clean_negatives(result)
 }
 
 fn clean_negatives(data: Vec<Token> ) -> Vec<Token> {
     let mut result = data;
 
-    Ok(match result.len() {
-        0 => result,
+    match result.len() {
+        0 | 1 => result,
         2 => {
             if result[0].content == "-" && result[1].token_type == TokenType::Operand {
                 let new_token = Token {
@@ -152,23 +145,23 @@ fn clean_negatives(data: Vec<Token> ) -> Vec<Token> {
 
             result
         }
-    })
+    }
 }
 
 impl Lexer for String {
-    fn tokenise(&self) -> Result<Vec<Token>, String> {
+    fn tokenise(&self) -> Vec<Token> {
         initial_seperation(self.to_string())
     }
 }
 
 impl Lexer for str {
-    fn tokenise(&self) -> Result<Vec<Token>, String> {
+    fn tokenise(&self) -> Vec<Token> {
         self.to_string().tokenise()
     }
 }
 
 fn main() {
-    for token in "-1".tokenise().unwrap() {
+    for token in "1".tokenise() {
         println!("{}, {:?}", token.content, token.token_type);
     }
 }
