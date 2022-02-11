@@ -1,16 +1,5 @@
-#[derive(PartialEq, Eq, Clone, Debug)]
-enum TokenType {
-    Operand,
-    Operator,
-    Other,
-    Null,
-}
-
-#[derive(Clone, Debug)]
-struct Token {
-    content: String,
-    token_type: TokenType,
-}
+mod modles;
+use crate::modles::{Token, TokenType};
 
 trait Lexer {
     fn tokenise(&self) -> Vec<Token>;
