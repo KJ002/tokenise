@@ -96,11 +96,12 @@ fn initial_seperation(data: String) -> Result<Vec<Token>, String> {
         .filter(|x| x.token_type != TokenType::Null)
         .cloned()
         .collect();
-    Ok(result)
+
+    clean_negatives(result);
 }
 
-fn negative_numbers_fix(data: Result<Vec<Token>, String>) -> Result<Vec<Token>, String> {
-    let mut result = data.unwrap();
+fn clean_negatives(data: Vec<Token> ) -> Vec<Token> {
+    let mut result = data;
 
     Ok(match result.len() {
         0 => result,
@@ -154,44 +155,9 @@ fn negative_numbers_fix(data: Result<Vec<Token>, String>) -> Result<Vec<Token>, 
     })
 }
 
-fn consecutive_types(data: Vec<Token>) -> Result<(), String> {
-    if data.len() < 2 {
-        return Ok(());
-    }
-
-    for i in 0..data.len() - 2 {
-        if data[i].token_type == data[i + 1].token_type {
-            return Err(format!(
-                "Consecutive types at {}{}",
-                data[i].content,
-                data[i + 1].content
-            ));
-        }
-    }
-
-    Ok(())
-}
-
-fn check(data: Result<Vec<Token>, String>) -> Result<Vec<Token>, String> {
-    let checks: Vec<fn(Vec<Token>) -> Result<(), String>> = vec![consecutive_types];
-    let results: Vec<bool> = checks
-        .iter()
-        .map(|x| x(data.clone().unwrap()).unwrap() == ())
-        .collect();
-
-    // Sum the result vector
-    let total: usize = results.iter().cloned().fold(0, |acc, x| acc + x as usize);
-
-    if total < results.len() {
-        return Err("The code seems to have failed a vital check.".to_string());
-    }
-
-    data
-}
-
 impl Lexer for String {
     fn tokenise(&self) -> Result<Vec<Token>, String> {
-        check(negative_numbers_fix(initial_seperation(self.to_string())))
+        initial_seperation(self.to_string())
     }
 }
 
