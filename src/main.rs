@@ -20,7 +20,11 @@ impl Tokenise for String {
 }
 
 fn main() {
-    for token in "1".tokenise() {
+    let expression = "-5*244-2+234";
+
+    println!("Expression: {}", expression);
+
+    for token in expression.tokenise() {
         println!("{}, {:?}", token.content, token.token_type);
     }
 }
