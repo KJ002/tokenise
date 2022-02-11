@@ -9,7 +9,13 @@ trait Tokenise {
 
 impl Tokenise for str {
     fn tokenise(&self) -> Vec<Token> {
-        Lexer::new(self.to_string()).tokenise()
+        self.to_string().tokenise()
+    }
+}
+
+impl Tokenise for String {
+    fn tokenise(&self) -> Vec<Token> {
+        Lexer::new(self.clone()).tokenise()
     }
 }
 
