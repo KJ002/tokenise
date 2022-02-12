@@ -4,7 +4,6 @@ pub struct Lexer {
     pub content: String,
     pub operators: Vec<char>,
     pub ignores: Vec<char>,
-    pub symbols: Vec<char>
 }
 
 impl Lexer {
